@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Breath Ball Home Page'),
+      home: BreathBall(title: 'Breath Ball Home Page'),
     );
   }
 }
