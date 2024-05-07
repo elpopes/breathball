@@ -14,7 +14,7 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 10), // Adjusted for total cycle including holds
+      duration: const Duration(seconds: 30), // Adjusted duration to fit the breathing pattern
       vsync: this,
     );
 
@@ -22,29 +22,23 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
     _animation = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(begin: 300.0, end: 600.0), // Inhale
-        weight: 30.0,
-      ),
-      TweenSequenceItem(
-        tween: ConstantTween<double>(600.0), // Hold
-        weight: 20.0,
+        weight: 25, // Shorter duration
       ),
       TweenSequenceItem(
         tween: Tween<double>(begin: 600.0, end: 300.0), // Exhale
-        weight: 30.0,
+        weight: 50, // Longer duration for exhale
       ),
       TweenSequenceItem(
-        tween: ConstantTween<double>(300.0), // Hold
-        weight: 20.0,
+        tween: ConstantTween<double>(300.0), // Hold after exhale
+        weight: 25, // Duration of hold
       ),
     ]).animate(_controller)
       ..addListener(() {
         setState(() {
-          // Update text based on animation phase
-          if (_controller.value < 0.3) {
+          double value = _controller.value;
+          if (value < 0.25) {
             _breathingText = 'Breathe in';
-          } else if (_controller.value < 0.5) {
-            _breathingText = 'Hold';
-          } else if (_controller.value < 0.8) {
+          } else if (value < 0.75) {
             _breathingText = 'Breathe out';
           } else {
             _breathingText = 'Hold';
