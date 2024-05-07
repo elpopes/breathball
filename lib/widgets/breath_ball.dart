@@ -51,19 +51,22 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: _animation.value,
-        height: _animation.value,
-        decoration: BoxDecoration(
-          color: Colors.blueAccent,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            _breathingText,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white, fontSize: 24),
+    return Scaffold( // Ensuring that the Scaffold is wrapping the content
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Explicitly using the scaffold background color
+      body: Center(
+        child: Container(
+          width: _animation.value,
+          height: _animation.value,
+          decoration: BoxDecoration(
+            color: Colors.blueAccent,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              _breathingText,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
           ),
         ),
       ),

@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
+        scaffoldBackgroundColor: Colors.grey[900],
       ),
       home: BreathBall(),  
     );
