@@ -7,8 +7,9 @@ class BreathBall extends StatefulWidget {
 }
 
 class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Animation<double> _animation;
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
 
   @override
   void initState() {
