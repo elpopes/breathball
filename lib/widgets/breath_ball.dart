@@ -9,7 +9,7 @@ class BreathBall extends StatefulWidget {
 class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-
+  String _breathingText = 'Breathe in';
 
   @override
   void initState() {
@@ -19,9 +19,12 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
       vsync: this,
     );
 
-    _animation = Tween<double>(begin: 100.0, end: 200.0).animate(_controller)
+    _animation = Tween<double>(begin: 300.0, end: 600.0).animate(_controller)
       ..addListener(() {
-        setState(() {});
+        setState(() {
+          // Update the text based on animation direction
+          _breathingText = _controller.status == AnimationStatus.forward ? 'Breathe in' : 'Breathe out';
+        });
       })
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -46,9 +49,9 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
         ),
         child: Center(
           child: Text(
-            'Breathe in... Breathe out...',
+            _breathingText,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontSize: 24),
           ),
         ),
       ),
