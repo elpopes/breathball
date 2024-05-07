@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 
 class BreathBall extends StatefulWidget {
@@ -15,26 +14,45 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 4), // Duration of one breath cycle
+      duration: const Duration(seconds: 10), // Adjusted for total cycle including holds
       vsync: this,
     );
 
-    _animation = Tween<double>(begin: 300.0, end: 600.0).animate(_controller)
+    // Define the sequence of animations
+    _animation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 300.0, end: 600.0), // Inhale
+        weight: 30.0,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(600.0), // Hold
+        weight: 20.0,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 600.0, end: 300.0), // Exhale
+        weight: 30.0,
+      ),
+      TweenSequenceItem(
+        tween: ConstantTween<double>(300.0), // Hold
+        weight: 20.0,
+      ),
+    ]).animate(_controller)
       ..addListener(() {
         setState(() {
-          // Update the text based on animation direction
-          _breathingText = _controller.status == AnimationStatus.forward ? 'Breathe in' : 'Breathe out';
+          // Update text based on animation phase
+          if (_controller.value < 0.3) {
+            _breathingText = 'Breathe in';
+          } else if (_controller.value < 0.5) {
+            _breathingText = 'Hold';
+          } else if (_controller.value < 0.8) {
+            _breathingText = 'Breathe out';
+          } else {
+            _breathingText = 'Hold';
+          }
         });
-      })
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _controller.reverse();
-        } else if (status == AnimationStatus.dismissed) {
-          _controller.forward();
-        }
       });
 
-    _controller.forward();
+    _controller.repeat(); // Change to repeat to continuously cycle the animation
   }
 
   @override
