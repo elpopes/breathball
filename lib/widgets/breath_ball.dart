@@ -1,3 +1,4 @@
+import 'dart:async'; // Dart's async library to use Timer
 import 'package:flutter/material.dart';
 
 class BreathBall extends StatefulWidget {
@@ -9,12 +10,13 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
   late AnimationController _controller;
   late Animation<double> _animation;
   String _breathingText = 'Breathe in';
+  Timer? _timer; // Timer to manage the duration
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 30), // Adjusted duration to fit the breathing pattern
+      duration: const Duration(seconds: 30), // Single cycle duration
       vsync: this,
     );
 
@@ -46,12 +48,20 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
         });
       });
 
-    _controller.repeat(); // Change to repeat to continuously cycle the animation
+    _controller.repeat(); // Start the animation in a repeating loop
+
+    // Set a timer to stop the animation after 15 minutes
+    _timer = Timer(const Duration(minutes: 15), () {
+      _controller.stop(); // Stops the animation
+      setState(() {
+        _breathingText = 'Session Complete'; // Optionally update the text to indicate completion
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // Ensuring that the Scaffold is wrapping the content
+    return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Explicitly using the scaffold background color
       body: Center(
         child: Container(
@@ -76,6 +86,7 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
   @override
   void dispose() {
     _controller.dispose();
+    _timer?.cancel(); // Ensure the timer is cancelled to prevent memory leaks
     super.dispose();
   }
 }
