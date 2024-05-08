@@ -1,4 +1,4 @@
-import 'dart:async'; // Dart's async library to use Timer
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class BreathBall extends StatefulWidget {
@@ -10,29 +10,56 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
   late AnimationController _controller;
   late Animation<double> _animation;
   String _breathingText = 'Breathe in';
-  Timer? _timer; // Timer to manage the duration
+  Timer? _timer; // Timer to manage the overall duration
+  Timer? _updateTimer; // Timer to update the cycle duration
 
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
-      duration: const Duration(seconds: 30), // Single cycle duration
-      vsync: this,
+      vsync: this, // The vsync anchor is still needed
+      duration: Duration(seconds: 10) // Start with a 10-second cycle
     );
 
-    // Define the sequence of animations
+    setupAnimation(); // Setup initial animation
+
+    // Periodically update the cycle duration
+    _updateTimer = Timer.periodic(Duration(seconds: 60), (Timer t) {
+      int minutes = t.tick; // Every tick is a minute
+      int newDuration = 10 + (50 * minutes ~/ 15); // Linearly increase from 10 to 60 seconds over 15 minutes
+      if (newDuration > 60) {
+        newDuration = 60; // Cap the duration at 60 seconds
+      }
+      _controller.duration = Duration(seconds: newDuration); // Update the controller's duration
+      setupAnimation(); // Resetup the animation with the new duration
+    });
+
+    // Timer to stop the animation after 15 minutes
+    _timer = Timer(const Duration(minutes: 15), () {
+      _controller.stop(); // Stops the animation
+      _updateTimer?.cancel(); // Stop the periodic timer as well
+      setState(() {
+        _breathingText = 'Session Complete'; // Optionally update the text to indicate completion
+      });
+    });
+
+    _controller.repeat(); // Start the animation
+  }
+
+  void setupAnimation() {
     _animation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 300.0, end: 600.0), // Inhale
-        weight: 25, // Shorter duration
+        tween: Tween<double>(begin: 300.0, end: 600.0),
+        weight: 25,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 600.0, end: 300.0), // Exhale
-        weight: 50, // Longer duration for exhale
+        tween: Tween<double>(begin: 600.0, end: 300.0),
+        weight: 50,
       ),
       TweenSequenceItem(
-        tween: ConstantTween<double>(300.0), // Hold after exhale
-        weight: 25, // Duration of hold
+        tween: ConstantTween<double>(300.0),
+        weight: 25,
       ),
     ]).animate(_controller)
       ..addListener(() {
@@ -47,22 +74,12 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
           }
         });
       });
-
-    _controller.repeat(); // Start the animation in a repeating loop
-
-    // Set a timer to stop the animation after 15 minutes
-    _timer = Timer(const Duration(minutes: 15), () {
-      _controller.stop(); // Stops the animation
-      setState(() {
-        _breathingText = 'Session Complete'; // Optionally update the text to indicate completion
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor, // Explicitly using the scaffold background color
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Container(
           width: _animation.value,
@@ -86,7 +103,8 @@ class _BreathBallState extends State<BreathBall> with SingleTickerProviderStateM
   @override
   void dispose() {
     _controller.dispose();
-    _timer?.cancel(); // Ensure the timer is cancelled to prevent memory leaks
+    _timer?.cancel();
+    _updateTimer?.cancel();
     super.dispose();
   }
 }
